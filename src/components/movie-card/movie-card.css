@@ -1,0 +1,42 @@
+.movie-card {
+  max-width: 454px;
+  min-width: 454px;
+  height: 281px;
+  margin: 0;
+  padding: 0;
+  border-color: #edd6f7;
+
+  display: flex;
+  background-color: #e9c8d7;
+}
+
+.tag-list {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.tag {
+  border: 1px solid #d9d3da;
+  border-radius: 6px;
+  background-color: #caabd1;
+  padding: 2px 5px;
+  font-size: 12px;
+}
+
+.description {
+  white-space: 'pre-wrap';
+  max-width: 228px;
+
+  font-size: 12px;
+}
+
+.title {
+  max-width: 228px;
+
+  font-size: 12px;
+}
+
+.date {
+  font-size: 12px;
+}
