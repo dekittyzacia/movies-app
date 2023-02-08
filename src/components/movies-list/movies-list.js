@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { Component } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -7,9 +8,12 @@ import './movies-list.css'
 export default class MoviesList extends Component {
   render() {
     const { movieData } = this.props
-    const items = movieData.map((item) => {
-      return <MovieCard key={uuidv4()} {...item} />
-    })
-    return <ul className="movies-list">{items}</ul>
+
+    if (movieData) {
+      const items = movieData.map((item) => {
+        return <MovieCard key={uuidv4()} {...item} />
+      })
+      return <ul className="movies-list">{items}</ul>
+    }
   }
 }

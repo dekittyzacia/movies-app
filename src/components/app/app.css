@@ -1,7 +1,19 @@
 .app {
   max-width: 1010px;
   margin: 0 auto 0 auto;
-  background-color: rgba(205, 138, 190, 0.5);
+  background-color: #fff;
   border-radius: 8px;
   height: 100%;
+}
+
+.status-block {
+  width: 100%;
+  min-height: 300px;
+  text-align: center;
+  padding: 20% 0;
+}
+
+.status-block__message {
+  max-width: 500px;
+  margin: auto;
 }
