@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { Pagination } from 'antd'
 
-import MoviesList from '../movies-list'
-import SearchPanel from '../search-panel'
 import Movies from '../../services/movies'
+import TabBar from '../tab-bar'
+import SearchPage from '../search-page'
+import RatedPage from '../rated-page'
+import { TagProvider } from '../tag-context/tag-context'
 
 import './app.css'
 
@@ -11,14 +12,12 @@ export default class App extends Component {
   moviesApi = new Movies()
 
   state = {
-    movieData: null,
-    loading: false,
-    error: null,
-    query: '',
-    currentPage: 1,
-    totalPages: null,
+    tags: null,
+    selectedTab: 'search',
   }
 
+  // Тут я проверяю, есть ли интернет, получаю теги
+  // фильмов и проверяю, есть ли гостевая сессия (если нет - создаю новую)
   componentDidMount = () => {
     window.addEventListener('online', () => {
       this.setState({ error: null })
@@ -29,81 +28,42 @@ export default class App extends Component {
         movieData: null,
       })
     })
-  }
 
-  onSearch = (text) => {
-    this.setState({
-      query: text,
-      loading: true,
-    })
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.query !== prevState.query) {
-      this.setState(this.loadingState())
-      this.moviesApi.getSource(this.state.query, 1).then(this.addAllMovies).catch(this.onError)
+    if (!localStorage.getItem('guestID')) {
+      this.moviesApi.getGuestSession().then((res) => {
+        localStorage.setItem('guestID', res)
+      })
     }
 
-    if (this.state.currentPage !== prevState.currentPage) {
-      this.setState(this.loadingState())
-      this.moviesApi.getSource(this.state.query, this.state.currentPage).then(this.addAllMovies).catch(this.onError)
-    }
-  }
-
-  loadingState = () => {
-    return { loading: true, movieData: null, error: null, totalPages: null }
-  }
-
-  addAllMovies = (moviesArray) => {
-    const movies = []
-    moviesArray.results.forEach((item) => {
-      movies.push(item)
-    }, [])
-    this.setState({
-      movieData: movies,
-      loading: false,
-      error: null,
-      currentPage: moviesArray.page,
-      totalPages: moviesArray.totalPages,
+    this.moviesApi.getTags().then((res) => {
+      this.setState({ tags: res.genres })
     })
   }
 
-  onError = (e) => {
-    console.log(e)
+  // Отслеживаю переключение табов
+  onChangeTab = (tabName) => {
     this.setState({
-      error: new Error(
-        'Sorry, there is something went wrong. Actually it\'s not "something", you\'re just russian. Use your VPN, I know, you have one. '
-      ),
-      loading: false,
+      selectedTab: tabName,
     })
-  }
-
-  onPageChange = (page) => {
-    this.setState({ currentPage: page })
   }
 
   render() {
-    const { movieData, loading, error, currentPage, totalPages } = this.state
+    const { tags, selectedTab } = this.state
+
+    const tabNames = {
+      searchTab: 'search',
+      ratedTab: 'rated',
+    }
+
+    const content = (selectedTab) => {
+      if (selectedTab === tabNames.ratedTab) return <RatedPage />
+      return <SearchPage />
+    }
 
     return (
       <section className="app">
-        {/* tab bar */}
-        <SearchPanel onSearch={this.onSearch} />
-        <Pagination
-          onChange={this.onPageChange}
-          current={currentPage}
-          total={totalPages}
-          defaultCurrent={1}
-          hideOnSinglePage
-        />
-        <MoviesList movieData={movieData} loading={loading} error={error} onMoviesList={this.onMoviesList} />
-        <Pagination
-          onChange={this.onPageChange}
-          current={currentPage}
-          total={totalPages}
-          defaultCurrent={1}
-          hideOnSinglePage
-        />
+        <TabBar selectedTab={selectedTab} onChangeTab={this.onChangeTab} />
+        <TagProvider value={tags}>{content(selectedTab)}</TagProvider>
       </section>
     )
   }
