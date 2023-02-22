@@ -1,11 +1,11 @@
 import { transformData, transformRatedData } from '../helpers/mappers'
 
 const apiKey = process.env.REACT_APP_API_KEY
-const apiMovies = process.env.REACT_APP_MOVIES_URL
+const apiMovies = 'https://api.themoviedb.org/3/'
 
 export default class Movies {
   async getGuestSession() {
-    const request = await fetch(`${apiMovies}authentication/guest_session/new?${apiKey}`)
+    const request = await fetch(`${apiMovies}authentication/guest_session/new?api_key=${apiKey}`)
 
     if (!request.ok) {
       throw new Error('Failed to create the guest session', request.status)
@@ -16,7 +16,7 @@ export default class Movies {
   }
 
   async getSearchMovies(query, page) {
-    const request = await fetch(`${apiMovies}search/movie?${apiKey}&query=${query}&page=${page}&language=en-EN`)
+    const request = await fetch(`${apiMovies}search/movie?api_key=${apiKey}&query=${query}&page=${page}&language=en-EN`)
 
     if (!request.ok) {
       throw new Error('Movies getting troubles', request.status)
@@ -32,9 +32,11 @@ export default class Movies {
     let request
 
     if (!page) {
-      request = await fetch(`${apiMovies}guest_session/${guestID}/rated/movies?${apiKey}&language=en-US`)
+      request = await fetch(`${apiMovies}guest_session/${guestID}/rated/movies?api_key=${apiKey}&language=en-US`)
     } else {
-      request = await fetch(`${apiMovies}guest_session/${guestID}/rated/movies?${apiKey}&page=${page}&language=en-US`)
+      request = await fetch(
+        `${apiMovies}guest_session/${guestID}/rated/movies?api_key=${apiKey}&page=${page}&language=en-US`
+      )
     }
 
     const res = await request.json()
@@ -42,7 +44,7 @@ export default class Movies {
   }
 
   async getTags() {
-    const request = await fetch(`${apiMovies}genre/movie/list?${apiKey}&language=en-US`)
+    const request = await fetch(`${apiMovies}genre/movie/list?api_key=${apiKey}&language=en-US`)
 
     if (!request.ok) {
       throw new Error('Tags getting troubles', request.status)
@@ -57,13 +59,16 @@ export default class Movies {
     const body = {
       value: rating,
     }
-    const rateRequest = await fetch(`${apiMovies}movie/${movieId}/rating?${apiKey}&guest_session_id=${guestID}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-      },
-      body: JSON.stringify(body),
-    })
+    const rateRequest = await fetch(
+      `${apiMovies}movie/${movieId}/rating?api_key=${apiKey}&guest_session_id=${guestID}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify(body),
+      }
+    )
 
     if (!rateRequest.ok) {
       throw new Error('Rating troubles', rateRequest.status)

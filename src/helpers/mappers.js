@@ -1,7 +1,6 @@
 import { format } from 'date-fns'
 
-// eslint-disable-next-line no-undef
-const apiPosters = process.env.REACT_APP_POSTERS_URL
+const apiPosters = 'https://image.tmdb.org/t/p/original'
 
 const sliceText = (text) => {
   const maxSymbolsLength = 145
