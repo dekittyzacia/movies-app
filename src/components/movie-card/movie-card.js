@@ -6,7 +6,7 @@ import { v4 as createKey } from 'uuid'
 import Movies from '../../services/movies'
 import './movie-card.css'
 import { TagConsumer } from '../tag-context/tag-context'
-import { ImageSpinner } from '../user-messages'
+import { ImageSpinner } from '../user-messages/user-messages'
 
 import testimage from './test-image.jpg'
 
@@ -19,17 +19,6 @@ const getVoteColor = (voteAverage) => {
   return '#66E900'
 }
 
-// Функция, которая возвращает размер постера
-// для мобилки/не мобилки
-const getImageSize = () => {
-  const screenWidth = window.innerWidth
-  if (screenWidth < 1024) {
-    return { width: 150, height: 245 }
-  }
-
-  return { width: 183, height: 281 }
-}
-
 export default class MovieCard extends Component {
   movies = new Movies()
 
@@ -39,9 +28,9 @@ export default class MovieCard extends Component {
 
   createTagList = (tagIdsArray, tagNames) => {
     const res = tagIdsArray.map((id) => {
-      const tag = tagNames.filter((item) => item.id === id)[0]
+      const tag = tagNames.filter((item) => item.id === id).at(0)
       return tag.name
-    }) // tagIdsArray - из запроса на фильмы, tagNames - из контекста, потом с ними вызов будет
+    })
 
     const tagList = res.map((item) => {
       return (
@@ -61,25 +50,24 @@ export default class MovieCard extends Component {
         description: text,
         icon: sucsess ? <ExclamationOutlined style={{ color: 'red' }} /> : <CheckOutlined style={{ color: 'green' }} />,
       })
-    } // Оповещение об оценке фильма
+    }
 
     this.movies
-      .rateMovie(this.props.id, value) // Пост запрос
+      .rateMovie(this.props.id, value)
       .catch(() => {
         openNotification('Something went wrong, so we can not save your rating', false)
-      }) // Что-то случилось (оповещение с ошибкой)
+      })
       .then((res) => {
         if (res) {
-          this.setState({ ratingValue: value }) // Чтобы когда оценил на странице поиска, там оценка осталась
+          this.setState({ ratingValue: value })
           openNotification('Hell yeah! We saved your rating, check the Rating tab!', true)
         }
-      }) // Ничего не случилось (оповещение, что ничего не случилось)
+      })
   }
 
   render() {
     const { title, releaseDate, description, tagIds, posterPath, voteAverage, rating } = this.props
     const { ratingValue } = this.state
-    const imageSize = getImageSize()
 
     return (
       <Badge count={voteAverage} color={getVoteColor(voteAverage)} className="movie-card__vote-average vote-average">
@@ -88,12 +76,10 @@ export default class MovieCard extends Component {
           className="movie-card"
           cover={
             <Image
-              width={imageSize.width}
-              height={imageSize.height}
               placeholder={<ImageSpinner />}
               src={posterPath ? posterPath : testimage}
               alt={title + ' постер'}
-              className="movie-card__poster"
+              className="movie-card__poster poster"
               style={{ borderRadius: 8 }}
               preview={false}
             />

@@ -10,6 +10,17 @@ export default class SearchPanel extends Component {
     inputValue: '',
   }
 
+  componentDidMount() {
+    if (localStorage.getItem('searchPageQuery')) {
+      this.setState({ inputValue: JSON.parse(localStorage.getItem('searchPageQuery')) })
+    }
+    localStorage.removeItem('searchPageQuery')
+  }
+
+  componentWillUnmount() {
+    localStorage.setItem('searchPageQuery', JSON.stringify(this.state.inputValue))
+  }
+
   onChangeInputValue = (e) => {
     this.setState({
       inputValue: e.target.value,

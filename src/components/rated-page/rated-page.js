@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Pagination } from 'antd'
 
-import MoviesList from '../movies-list'
+import MoviesList from '../movies-list/movies-list'
 import Movies from '../../services/movies'
 
 import './rated-page.css'
@@ -17,13 +17,11 @@ export default class RatedPage extends Component {
     totalResults: null,
   }
 
-  // Ищем оцененные фильмы по гостевой сессии (ид достается в апи сам, он самостоятельный)
   componentDidMount() {
-    this.setState({ loading: true }) // Включаем спиннер
+    this.setState({ loading: true })
     this.moviesApi.getRatedMovies().then(this.addAllMovies).catch(this.onError)
   }
 
-  // Листаем страницы оцененных фильмов
   componentDidUpdate(prevProps, prevState) {
     if (this.state.totalResults && this.state.currentPage !== prevState.currentPage) {
       this.setState(this.loadingState())
@@ -31,17 +29,14 @@ export default class RatedPage extends Component {
     }
   }
 
-  // Листаем страницы оцененных фильмов
   onPageChange = (page) => {
     this.setState({ currentPage: page })
   }
 
-  // Листаем страницы оцененных фильмов
   addAllMovies = (moviesArray) => {
     const movies = []
-    moviesArray.results.forEach((item) => {
-      movies.push(item)
-    }, [])
+    moviesArray.results.map((item) => movies.push(item))
+
     this.setState({
       movieRatedData: movies,
       loading: false,
@@ -51,9 +46,6 @@ export default class RatedPage extends Component {
     })
   }
 
-  // Ошибка запроса после фетча будет связана с впн, т.к.
-  // если мы дожили до чего-то, что вызывает фетч,
-  // значит остальное приложение работает
   onError = () => {
     this.setState({
       error: new Error(

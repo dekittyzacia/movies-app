@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Pagination } from 'antd'
 
 import Movies from '../../services/movies'
-import SearchPanel from '../search-panel'
-import MoviesList from '../movies-list'
+import SearchPanel from '../search-panel/search-panel'
+import MoviesList from '../movies-list/movies-list'
 import './search-page.css'
 
 export default class SearchPage extends Component {
@@ -18,7 +18,6 @@ export default class SearchPage extends Component {
     totalResults: null,
   }
 
-  // Вбиваем в поиск строку через SearchPanel (если новый поиск)
   onSearch = (text) => {
     this.setState({
       query: text,
@@ -26,37 +25,44 @@ export default class SearchPage extends Component {
     })
   }
 
-  // Меняем страницу при том же запросе
   onPageChange = (page) => {
     this.setState({ currentPage: page })
   }
 
-  // Делаем запрос когда обновился стейт по квери или странице
+  componentDidMount() {
+    if (localStorage.getItem('searchPageState')) {
+      this.setState(JSON.parse(localStorage.getItem('searchPageState')))
+    }
+    localStorage.removeItem('searchPageState')
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    //Делаем запрос по строке, первая страница
     if (this.state.query !== prevState.query) {
-      this.setState(this.loadingState()) // Включаем спиннер
-      this.moviesApi.getSource(this.state.query, 1).then(this.addAllMovies).catch(this.onError)
+      this.setState(this.loadingState())
+      this.moviesApi.getSearchMovies(this.state.query, 1).then(this.addAllMovies).catch(this.onError)
     }
 
-    // Делаем запрос по странице со старой строкой
     if (this.state.currentPage !== prevState.currentPage) {
-      this.setState(this.loadingState()) // Включаем спиннер
-      this.moviesApi.getSource(this.state.query, this.state.currentPage).then(this.addAllMovies).catch(this.onError)
+      this.setState(this.loadingState())
+      this.moviesApi
+        .getSearchMovies(this.state.query, this.state.currentPage)
+        .then(this.addAllMovies)
+        .catch(this.onError)
     }
   }
 
-  // Функция ставит стейт для работы спиннера
+  componentWillUnmount() {
+    localStorage.setItem('searchPageState', JSON.stringify(this.state))
+  }
+
   loadingState = () => {
     return { loading: true, movieData: null, error: null, totalPages: null }
   }
 
-  // Добавляем все фильмы с запроса, сохраняем в стейт результаты + кол-во для пагинации
   addAllMovies = (moviesArray) => {
     const movies = []
-    moviesArray.results.forEach((item) => {
-      movies.push(item)
-    }, [])
+    moviesArray.results.map((item) => movies.push(item))
+
     this.setState({
       movieData: movies,
       loading: false,
@@ -66,9 +72,6 @@ export default class SearchPage extends Component {
     })
   }
 
-  // Ошибка запроса после фетча будет связана с впн, т.к.
-  // если мы дожили до чего-то, что вызывает фетч,
-  // значит остальное приложение работает
   onError = () => {
     this.setState({
       error: new Error(

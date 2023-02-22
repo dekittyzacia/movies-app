@@ -53,6 +53,13 @@
   font-size: inherit;
 }
 
+.poster {
+  max-width: 150px;
+  min-width: 150px;
+  min-height: 245px;
+  max-height: 245px;
+}
+
 @media (min-width: 1024px) {
   .title {
     max-width: 228px;
@@ -60,5 +67,12 @@
 
   .description {
     max-width: 228px;
+  }
+
+  .poster {
+    max-width: 183px;
+    min-width: 183px;
+    min-height: 281px;
+    max-height: 281px;
   }
 }
